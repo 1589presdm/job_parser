@@ -2,9 +2,15 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import re
+import json
 
-link = 'https://duunitori.fi/tyopaikat/ammatti/ravintolatyontekija'
+
 base_url = 'https://duunitori.fi'
+category = 'ravintolatyontekija'
+link = f'{base_url}/tyopaikat/ammatti/{category}'
+
+
+
 response = requests.get(link)
 
 soup = BeautifulSoup(response.text, 'html.parser')
@@ -31,7 +37,7 @@ for num, card in enumerate(cards, start=1):
         location = None
     posted = card.find('span', class_='job-box__job-posted').get_text(strip=True).replace('Julkaistu', '').strip()
 
-    job = {
+    job_data = {
         'title': job_name,
         'url': url_link,
         'company': company_name,
@@ -39,9 +45,8 @@ for num, card in enumerate(cards, start=1):
         'posted': posted
     }
 
-    jobs.append(job)
+    jobs.append(job_data)
 
-
-print(len(jobs))
-print(jobs[0])
-print(jobs[1])
+filename = f"{category}_jobs.json"
+with open(filename, 'w', encoding='utf-8') as file:
+    json.dump(jobs, file, indent=2, ensure_ascii=False)
