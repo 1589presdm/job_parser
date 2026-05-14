@@ -3,12 +3,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 import re
 import json
-
-
-base_url = 'https://duunitori.fi'
-category = 'ravintolatyontekija'
-link = f'{base_url}/tyopaikat/ammatti/{category}'
-filename = f"{category}_jobs.json"
+import argparse
 
 def get_html(url):
     response = requests.get(url)
@@ -67,10 +62,27 @@ def save_jobs_to_json(jobs, filename):
         json.dump(jobs, file, ensure_ascii=False, indent=2)
     return filename
 
-html = get_html(link)
-cards = get_cards(html)
-jobs = parse_jobs(cards, base_url)
-save_jobs_to_json(jobs, filename)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--category", required=True)
+
+    args = parser.parse_args()
+    category = args.category
+
+    base_url = 'https://duunitori.fi'
+    link = f'{base_url}/tyopaikat/ammatti/{category}'
+    filename = f"{category}_jobs.json"
+
+    html = get_html(link)
+    cards = get_cards(html)
+    jobs = parse_jobs(cards, base_url)
+    save_jobs_to_json(jobs, filename)
+
+    print(f"Saved {len(jobs)} jobs to {filename}")
+
+
+if __name__ == '__main__':
+    main()
 
 
 
